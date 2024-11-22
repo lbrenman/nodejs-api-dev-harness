@@ -5,17 +5,28 @@ import { RekognitionClient, DetectFacesCommand, SearchFacesByImageCommand } from
 import sharp from 'sharp';
 
 const aws_param = {
-    region: process.env.AWSREGION,
-    credentials: {
-      accessKeyId: process.env.AWSCLIENTID,
-      secretAccessKey: process.env.AWSCLIENTSECRET,
-    }
+  region: process.env.AWSREGION,
+  credentials: {
+    accessKeyId: process.env.AWSCLIENTID,
+    secretAccessKey: process.env.AWSCLIENTSECRET,
   }
+}
 
 const rekognitionClient = new RekognitionClient(aws_param);
 
 export async function searchFaces(image, collectionId) {
 
-    // return { success: true, data: {"message":"Hello from searchFaces()"} }
-    return { success: true, data: rekognitionClient }
+  const buffer = Buffer.from(image, 'base64');
+
+  // Detect faces in the input image
+  const detectFacesParams = {
+    Image: {
+      Bytes: buffer
+    }
+  };
+
+  const detectFacesCommand = new DetectFacesCommand(detectFacesParams);
+  const detectFacesResponse = await rekognitionClient.send(detectFacesCommand);
+  const faceDetails = detectFacesResponse.FaceDetails;
+  return { success: true, data: faceDetails }
 }

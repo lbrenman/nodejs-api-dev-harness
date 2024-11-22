@@ -9,7 +9,7 @@ import { searchFaces } from './lib_aws.js';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json({ limit: '50mb' })); 
+app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Basic API's
@@ -35,14 +35,14 @@ app.get('/api/greet', (req, res) => {
   if (!name) {
     return res.status(400).json({ error: 'Name query parameter is required' });
   }
-  const greetingMessage = getGreeting(name); 
+  const greetingMessage = getGreeting(name);
   res.json({ message: greetingMessage });
 });
 
 app.post('/api/greet', (req, res) => {
   // curl -X POST http://localhost:3000/api/greet -H "Content-Type: application/json" -d '{"name": "Alice"}'
   const { name } = req.body;
-  
+
   if (!name) {
     return res.status(400).json({ error: 'Name is required in the request body' });
   }
@@ -71,7 +71,7 @@ app.get('/api/quote', (req, res) => {
   }
 
   const { symbol } = req.query;
-  
+
   if (!symbol) {
     return res.status(400).json({ error: 'Symbol is a required query parameter' });
   }
@@ -80,10 +80,15 @@ app.get('/api/quote', (req, res) => {
 
 });
 
+// API's Using AWS SDK
 app.post('/api/searchfaces', (req, res) => {
   // curl -X POST http://localhost:3000/api/searchfaces?symbol=AAPL -H "Content-Type: application/json" -d '{"image": "Alice", "collectionId": "home-collection"}'
 
   const { image, collectionId } = req.body;
+
+  if (!image || !collectionId) {
+    return res.status(400).json({ error: 'image and collectionId are required in the request body' });
+  }
 
   async function fetchsearchFaces(image, collectionId) {
     try {
@@ -100,28 +105,13 @@ app.post('/api/searchfaces', (req, res) => {
       res.json(error);
     }
   }
-  
+
   if (!image || !collectionId) {
     return res.status(400).json({ error: 'image and collectionId are required body parameters' });
   }
 
   fetchsearchFaces(image, collectionId);
 
-});
-
-// API's Using AWS SDK
-app.post('/api/searchface', (req, res) => {
-  // curl -X POST http://localhost:3000/api/greet -H "Content-Type: application/json" -d '{"image": "Alice", "collectionId": "home-collection"}'
-  const body = req.body;
-  const base64Image = body.image;
-  const buffer = Buffer.from(base64Image, 'base64');
-  const collectionId = body.collectionId;
-  
-  if (!base64Image || !collectionId) {
-    return res.status(400).json({ error: 'image and collectionId are required in the request body' });
-  }
-  const greetingMessage = getGreeting(name);
-  res.json({ message: greetingMessage });
 });
 
 // Start the server
