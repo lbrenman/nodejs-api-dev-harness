@@ -106,10 +106,6 @@ app.post('/api/searchfaces', (req, res) => {
     }
   }
 
-  if (!image || !collectionId) {
-    return res.status(400).json({ error: 'image and collectionId are required body parameters' });
-  }
-
   fetchsearchFaces(image, collectionId);
 
 });
